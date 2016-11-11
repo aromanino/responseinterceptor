@@ -279,7 +279,7 @@ ETag: "35-6BXjKyRXlm+rSEU9a23z/g"
 Date: Fri, 11 Nov 2016 13:16:44 GMT
 Connection: keep-alive
 
-{"content":"myContent"}  // content with no timestamp field
+{"content":"myContent"} // content with no timestamp field
 $
 $
 $
