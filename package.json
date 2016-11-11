@@ -25,6 +25,14 @@
     "argument",
     "parser"
   ],
-  "author": "Alessandro Romanino",
-  "license": "MIT"
+  "author": "Alessandro Romanino <a.romanino@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aromanino/responseinterceptor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aromanino/responseinterceptor/issues"
+  },
+  "homepage": "https://github.com/aromanino/responseinterceptor#readme"
 }
