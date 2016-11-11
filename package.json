@@ -1,6 +1,6 @@
 {
   "name": "responseinterceptor",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "dependencies": {
     "async": "^2.1.2",
     "debug": "~2.0.0",
@@ -27,7 +27,6 @@
     "intercept",
     "override",
     "override response"
-
   ],
   "author": "Alessandro Romanino <a.romanino@gmail.com>",
   "license": "MIT",
