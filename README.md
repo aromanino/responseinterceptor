@@ -39,7 +39,6 @@ to intercept all routes use it in app.js
    var responseinterceptor = require('responseinterceptor');
    
    app.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-      
    // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
    // For Example add Date & Time of response in Body fields
    var NewResponse=body;
@@ -47,7 +46,6 @@ to intercept all routes use it in app.js
          NewResponse.otherInformation=Date.now(); // add response date&time
    
    callback(NewResponse); // callback function with the new content 
-   
    }));    
 
 ```
@@ -58,30 +56,25 @@ Define a router for "/intercept", for example in file routeInt.js
 
 var express = require('express');
 var router = express.Router();
-    
 var responseinterceptor = require('responseinterceptor');
    
 router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){   
     // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX       
     // For Example add Date & Time of response in Body fields
-      
     var NewResponse=body;
     if(bodyContentType==="application/json")  // if body is a Json
          NewResponse.otherInformation=Date.now(); // add response date&time
    
-    callback(NewResponse); // callback function with the new content 
-   
+    callback(NewResponse); // callback function with the new content
 }));
    
 // other routes ...
-
 ```
 
 In app.js use the "/intercept" route
 ```javascript    
    var routeInt = require('../routes/routeInt');
    app.use('/intercept', routeInt);   
-
 ```
 
 #### <a name="allgroup"></a> Intercept a group of routes( some routes in the same file)
@@ -91,32 +84,26 @@ Define a router for "/intercept", for example in file routeInt.js
 
     var express = require('express');
     var router = express.Router();
-    
     var responseinterceptor = require('responseinterceptor');
     
     // ############ BEGIN of routes to not intercept ############
         router.get("/", function(req,res,next){
             // your logic
         });
-        
         router.post("/", function(req,res,next){
             // your logic
         });
-        
         // ..... other routes .....
         
       
     // ############ BEGIN of routes to intercept ############
-    
         router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-       
           // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
           // For Example add Date & Time of response in Body fields
-         
           var NewResponse=body;
+          
           if(bodyContentType==="application/json")  // if body is a Json
                  NewResponse.otherInformation=Date.now(); // add response date&time
-       
           callback(NewResponse); // callback function with the new content        
         }));    
     
@@ -124,15 +111,11 @@ Define a router for "/intercept", for example in file routeInt.js
             // your logic
             res.send({data:"...."}); // responseinterceptor intercept this response
         });
-            
         router.post("/onlythis", function(req,res,next){
             // your logic
             res.send({data:"...."}); // responseinterceptor intercept this response
-        });
-            
+        }); 
         // ..... other routes to intercept .....
-             
-
 ```
 
 In app.js use the "/intercept" route
@@ -148,34 +131,26 @@ Define a router for "/intercept", for example in file routeInt.js
 
     var express = require('express');
     var router = express.Router();
-    
     var responseinterceptor = require('responseinterceptor');
     
     // not interceptable route
     router.get("/",function(req,res,next){
     
     });
-   
-   // interceptable route
-   router.get("/",middlewareInterceptor ,function(req,res,next){
+    // interceptable route
+    router.get("/",middlewareInterceptor ,function(req,res,next){
        // Your Logic
        
        res.send({data:"...."}); // responseinterceptor intercept this response
-   });
-   
-     
-    var middlewareInterceptor= responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-   
-   // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
-   // For Example add Date & Time of response in Body fields
-   
-   var NewResponse=body;
-   if(bodyContentType==="application/json")  // if body is a Json
-         NewResponse.otherInformation=Date.now(); // add response date&time
-   
-   callback(NewResponse); // callback function with the new content   
-   }));   
-
+    });
+    var middlewareInterceptor= responseinterceptor.intercept(function(body, bodyContentType ,request, callback){   
+        // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
+        // For Example add Date & Time of response in Body fields   
+        var NewResponse=body;
+        if(bodyContentType==="application/json")  // if body is a Json
+             NewResponse.otherInformation=Date.now(); // add response date&time
+        callback(NewResponse); // callback function with the new content   
+    }));
 ```
 
 In app.js use the "/intercept" route
@@ -194,47 +169,32 @@ Intercept a group of routes and add at the the response the timestamp in a filed
 
     var express = require('express');
     var router = express.Router();
-    
     var responseinterceptor = require('responseinterceptor');
     
     // ############ BEGIN of routes to not intercept ############
         router.get("/", function(req,res,next){
             res.status(200).send({"content":"myContent"});
-        });
-                        
+        });             
         // ..... other routes .....
         
-   
-    
-    
     // ############ BEGIN of routes to intercept ########################
-    
         router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-        
             var NewResponse=body;
             if(bodyContentType==="application/json")  // if body is a Json
                      NewResponse.timestamp=Date.now(); // add response date&time
-       
-            callback(NewResponse); // callback function with the new content 
-       
+            callback(NewResponse); // callback function with the new content
         }));    
-    
         router.get("/withTimestamp", function(req,res,n ext){
             // responseinterceptor intercept this response 
             res.status(200).send({"content":"myContent"});
         });
-            
         // ..... other routes to intercept .....
-        
-      
-
 ```
 
 In app.js use the "/intercept" route
 ```javascript    
    var routeInt = require('../routes/routeInt');
    app.use('/intercept', routeInt);   
-
 ```
 
 Call service with curl to print results
@@ -249,9 +209,6 @@ Connection: keep-alive
 
 {"content":"myContent"} // content with no timestamp field
 $
-$
-$
-$
 $ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://hostname/intercept/withTimestamp
 X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
@@ -261,7 +218,6 @@ Date: Fri, 11 Nov 2016 13:16:44 GMT
 Connection: keep-alive
 
 {"content":"myContent","timestamp":"1478870174325"} // content with timestamp field
-
 ```
 
 
@@ -273,10 +229,7 @@ Intercept a group of routes and replace all html tag <ul> to <ol>
 
     var express = require('express');
     var router = express.Router();
-    
     var responseinterceptor = require('responseinterceptor');
-    
-    
     var htmlContent=`<html>
                         <head> </head>
                         <body contenteditable="false">                    
@@ -292,28 +245,20 @@ Intercept a group of routes and replace all html tag <ul> to <ol>
     // ############ BEGIN of routes to not intercept ############
         router.get("/", function(req,res,next){
             res.status(200).send(htmlContent);
-        });
-                        
+        });            
         // ..... other routes .....
         
-    
-    // ############ BEGIN of routes to intercept ############
-    
-        router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-          
+    // ############ BEGIN of routes to intercept ############    
+        router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){          
             var NewResponse=body;
             if(bodyContentType==="text/html")  // if body is a html
                      body.replace("<ul>","<ol>");
-       
-            callback(NewResponse); // callback function with the new html content 
-       
-        }));    
-    
+            callback(NewResponse); // callback function with the new html content
+        }));
         router.get("/withTimestamp", function(req,res,n ext){
             // responseinterceptor intercept this response 
             res.status(200).send(htmlContent);
         });
-            
         // ..... other routes to intercept .....
 
 ```
@@ -321,8 +266,7 @@ Intercept a group of routes and replace all html tag <ul> to <ol>
 In app.js use the "/intercept" route
 ```javascript    
    var routeInt = require('../routes/routeInt');
-   app.use('/intercept', routeInt);   
-
+   app.use('/intercept', routeInt);
 ```
 
 Call service with curl to print results
@@ -347,9 +291,6 @@ Connection: keep-alive
                 </ul>
         </body>
 </html>
-$
-$
-$
 $
 $ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://hostname/intercept/withTimestamp
 X-Powered-By: Express
