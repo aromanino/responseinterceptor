@@ -18,12 +18,16 @@
     "test": "npm test"
   },
   "keywords": [
-    "config",
-    "configuration",
-    "property",
-    "properties",
-    "argument",
-    "parser"
+    "response",
+    "express",
+    "res.send",
+    "res.write",
+    "res.end",
+    "res.render",
+    "intercept",
+    "override",
+    "override response"
+
   ],
   "author": "Alessandro Romanino <a.romanino@gmail.com>",
   "license": "MIT",
