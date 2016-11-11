@@ -35,25 +35,21 @@ response interceptor is a middleware that intercept an express response, so you 
 #### <a name="all"></a> Intercept all routes
 to intercept all routes use it in app.js
 ```javascript
-
-   var responseinterceptor = require('responseinterceptor');
-   
-   app.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-   // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
-   // For Example add Date & Time of response in Body fields
-   var NewResponse=body;
-   if(bodyContentType==="application/json")  // if body is a Json
+var responseinterceptor = require('responseinterceptor');
+ 
+app.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
+    // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
+    // For Example add Date & Time of response in Body fields
+    var NewResponse=body;
+    if(bodyContentType==="application/json")  // if body is a Json
          NewResponse.otherInformation=Date.now(); // add response date&time
-   
-   callback(NewResponse); // callback function with the new content 
-   }));    
-
+    callback(NewResponse); // callback function with the new content 
+}));    
 ```
 #### <a name="allroute"></a> Intercept a group of routes(all routes in the same file)
 to intercept a group of routes use it as a ROUTER middleware. for example intercept all routes "/intercept". 
 Define a router for "/intercept", for example in file routeInt.js
 ```javascript
-
 var express = require('express');
 var router = express.Router();
 var responseinterceptor = require('responseinterceptor');
@@ -64,10 +60,8 @@ router.use(responseinterceptor.intercept(function(body, bodyContentType ,request
     var NewResponse=body;
     if(bodyContentType==="application/json")  // if body is a Json
          NewResponse.otherInformation=Date.now(); // add response date&time
-   
     callback(NewResponse); // callback function with the new content
-}));
-   
+}));   
 // other routes ...
 ```
 
@@ -81,7 +75,6 @@ In app.js use the "/intercept" route
 to intercept a group of routes use it as a ROUTER middleware. for example intercept all routes "/intercept/onlythis". 
 Define a router for "/intercept", for example in file routeInt.js
 ```javascript
-
     var express = require('express');
     var router = express.Router();
     var responseinterceptor = require('responseinterceptor');
@@ -95,7 +88,6 @@ Define a router for "/intercept", for example in file routeInt.js
         });
         // ..... other routes .....
         
-      
     // ############ BEGIN of routes to intercept ############
         router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
           // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
@@ -105,8 +97,7 @@ Define a router for "/intercept", for example in file routeInt.js
           if(bodyContentType==="application/json")  // if body is a Json
                  NewResponse.otherInformation=Date.now(); // add response date&time
           callback(NewResponse); // callback function with the new content        
-        }));    
-    
+        }));  
         router.get("/onlythis", function(req,res,next){
             // your logic
             res.send({data:"...."}); // responseinterceptor intercept this response
@@ -128,7 +119,6 @@ In app.js use the "/intercept" route
 to intercept a single route use it as a route middleware. for example intercept route "/intercept" in post method but not in get. 
 Define a router for "/intercept", for example in file routeInt.js
 ```javascript
-
     var express = require('express');
     var router = express.Router();
     var responseinterceptor = require('responseinterceptor');
@@ -166,35 +156,34 @@ In app.js use the "/intercept" route
 
 Intercept a group of routes and add at the the response the timestamp in a filed called "timestamp" if body Content-Type is "application/json"
 ```javascript
-
-    var express = require('express');
-    var router = express.Router();
-    var responseinterceptor = require('responseinterceptor');
+var express = require('express');
+var router = express.Router();
+var responseinterceptor = require('responseinterceptor');
     
-    // ############ BEGIN of routes to not intercept ############
-        router.get("/", function(req,res,next){
-            res.status(200).send({"content":"myContent"});
-        });             
-        // ..... other routes .....
+// ############ BEGIN of routes to not intercept ############
+    router.get("/", function(req,res,next){
+        res.status(200).send({"content":"myContent"});
+    });             
+    // ..... other routes .....
         
-    // ############ BEGIN of routes to intercept ########################
-        router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-            var NewResponse=body;
-            if(bodyContentType==="application/json")  // if body is a Json
-                     NewResponse.timestamp=Date.now(); // add response date&time
-            callback(NewResponse); // callback function with the new content
-        }));    
-        router.get("/withTimestamp", function(req,res,n ext){
-            // responseinterceptor intercept this response 
-            res.status(200).send({"content":"myContent"});
-        });
-        // ..... other routes to intercept .....
+// ############ BEGIN of routes to intercept ########################
+    router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
+        var NewResponse=body;
+        if(bodyContentType==="application/json")  // if body is a Json
+                 NewResponse.timestamp=Date.now(); // add response date&time
+        callback(NewResponse); // callback function with the new content
+    }));    
+    router.get("/withTimestamp", function(req,res,n ext){
+        // responseinterceptor intercept this response 
+        res.status(200).send({"content":"myContent"});
+    });
+    // ..... other routes to intercept .....
 ```
 
 In app.js use the "/intercept" route
 ```javascript    
-   var routeInt = require('../routes/routeInt');
-   app.use('/intercept', routeInt);   
+var routeInt = require('../routes/routeInt');
+app.use('/intercept', routeInt);   
 ```
 
 Call service with curl to print results
@@ -224,49 +213,47 @@ Connection: keep-alive
 ### <a name="ex2"></a>`Intercept response and add information to response if Content-Type is "text/html"`
 
 
-Intercept a group of routes and replace all html tag <ul> to <ol> 
+Intercept a group of routes and replace all html tag `<ul>` to `<ol>` 
 ```javascript
-
-    var express = require('express');
-    var router = express.Router();
-    var responseinterceptor = require('responseinterceptor');
-    var htmlContent=`<html>
-                        <head> </head>
-                        <body contenteditable="false">                    
-                            <h2>An ordered HTML list</h2>                    
-                            <ul>
-                                <li>Coffee</li>
-                                <li>Tea</li>
-                                <li>Milk</li>
-                            </ul>
-                        </body>
-                    </html>`;
+var express = require('express');
+var router = express.Router();
+var responseinterceptor = require('responseinterceptor');
+var htmlContent=`<html>
+                    <head> </head>
+                    <body contenteditable="false">                    
+                        <h2>An ordered HTML list</h2>                    
+                        <ul>
+                            <li>Coffee</li>
+                            <li>Tea</li>
+                            <li>Milk</li>
+                        </ul>
+                    </body>
+                </html>`;
     
-    // ############ BEGIN of routes to not intercept ############
-        router.get("/", function(req,res,next){
-            res.status(200).send(htmlContent);
-        });            
-        // ..... other routes .....
+// ############ BEGIN of routes to not intercept ############
+    router.get("/", function(req,res,next){
+        res.status(200).send(htmlContent);
+    });            
+    // ..... other routes .....
         
-    // ############ BEGIN of routes to intercept ############    
-        router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){          
-            var NewResponse=body;
-            if(bodyContentType==="text/html")  // if body is a html
-                     body.replace("<ul>","<ol>");
-            callback(NewResponse); // callback function with the new html content
-        }));
-        router.get("/withTimestamp", function(req,res,n ext){
-            // responseinterceptor intercept this response 
-            res.status(200).send(htmlContent);
-        });
-        // ..... other routes to intercept .....
-
+// ############ BEGIN of routes to intercept ############    
+    router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){          
+        var NewResponse=body;
+        if(bodyContentType==="text/html")  // if body is a html
+                 body.replace("<ul>","<ol>");
+        callback(NewResponse); // callback function with the new html content
+    }));
+    router.get("/withTimestamp", function(req,res,n ext){
+        // responseinterceptor intercept this response 
+        res.status(200).send(htmlContent);
+    });
+    // ..... other routes to intercept .....
 ```
 
 In app.js use the "/intercept" route
 ```javascript    
-   var routeInt = require('../routes/routeInt');
-   app.use('/intercept', routeInt);
+var routeInt = require('../routes/routeInt');
+app.use('/intercept', routeInt);
 ```
 
 Call service with curl to print results
@@ -312,5 +299,4 @@ Connection: keep-alive
                 </ol>
         </body>
 </html>
-
 ```
