@@ -78,7 +78,7 @@ Define a router for "/intercept", for example in file routeInt.js
    // must be already called in your original route response 
       
    var NewResponse=body;
-   if(bodyContentType==="application/json)  // if body is a Json
+   if(bodyContentType==="application/json")  // if body is a Json
          NewResponse.otherInformation=Date.now(); // add response date&time
    
    callback(NewResponse); // callback function with the new content 
@@ -135,7 +135,7 @@ Define a router for "/intercept", for example in file routeInt.js
             // must be already called in your original route response  
           
             var NewResponse=body;
-            if(bodyContentType==="application/json)  // if body is a Json
+            if(bodyContentType==="application/json")  // if body is a Json
                      NewResponse.otherInformation=Date.now(); // add response date&time
        
             callback(NewResponse); // callback function with the new content 
@@ -200,7 +200,7 @@ Define a router for "/intercept", for example in file routeInt.js
    
    
    var NewResponse=body;
-   if(bodyContentType==="application/json)  // if body is a Json
+   if(bodyContentType==="application/json")  // if body is a Json
          NewResponse.otherInformation=Date.now(); // add response date&time
    
    callback(NewResponse); // callback function with the new content 
@@ -244,7 +244,7 @@ Intercept a group of routes and add at the the response the timestamp in a filed
                   
           
             var NewResponse=body;
-            if(bodyContentType==="application/json)  // if body is a Json
+            if(bodyContentType==="application/json")  // if body is a Json
                      NewResponse.timestamp=Date.now(); // add response date&time
        
             callback(NewResponse); // callback function with the new content 
