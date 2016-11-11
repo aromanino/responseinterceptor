@@ -39,15 +39,9 @@ to intercept all routes use it in app.js
    var responseinterceptor = require('responseinterceptor');
    
    app.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-   
-   // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   //         YOUR LOGIC AFTER RESPONSE INTERCEPT 
+      
+   // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
    // For Example add Date & Time of response in Body fields
-   // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   
-   // If you are here a res.send, res.write, res.end, res.render ....
-   // must be already called in your original route response 
-   
    var NewResponse=body;
    if(bodyContentType==="application/json")  // if body is a Json
          NewResponse.otherInformation=Date.now(); // add response date&time
@@ -62,33 +56,24 @@ to intercept a group of routes use it as a ROUTER middleware. for example interc
 Define a router for "/intercept", for example in file routeInt.js
 ```javascript
 
-    var express = require('express');
-    var router = express.Router();
+var express = require('express');
+var router = express.Router();
     
-    var responseinterceptor = require('responseinterceptor');
+var responseinterceptor = require('responseinterceptor');
    
-    router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-   
-   // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   //         YOUR LOGIC AFTER RESPONSE INTERCEPT 
-   // For Example add Date & Time of response in Body fields
-   // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   
-   // If you are here a res.send, res.write, res.end, res.render ....
-   // must be already called in your original route response 
+router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){   
+    // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX       
+    // For Example add Date & Time of response in Body fields
       
-   var NewResponse=body;
-   if(bodyContentType==="application/json")  // if body is a Json
+    var NewResponse=body;
+    if(bodyContentType==="application/json")  // if body is a Json
          NewResponse.otherInformation=Date.now(); // add response date&time
    
-   callback(NewResponse); // callback function with the new content 
+    callback(NewResponse); // callback function with the new content 
    
-   }));
+}));
    
-   // other routes
-   // as:
-   // router.get(.....) 
-   // .....
+// other routes ...
 
 ```
 
@@ -109,7 +94,7 @@ Define a router for "/intercept", for example in file routeInt.js
     
     var responseinterceptor = require('responseinterceptor');
     
-    // XXXXXXXXXXXX BEGIN of routes to not intercept XXXXXXXXXXX
+    // ############ BEGIN of routes to not intercept ############
         router.get("/", function(req,res,next){
             // your logic
         });
@@ -120,26 +105,19 @@ Define a router for "/intercept", for example in file routeInt.js
         
         // ..... other routes .....
         
-    // XXXXXXXXXXXX END of routes to not intercept XXXXXXXXXXX
-    
-    // XXXXXXXXXXXX BEGIN of routes to intercept XXXXXXXXXXX
+      
+    // ############ BEGIN of routes to intercept ############
     
         router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
        
-            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-            //         YOUR LOGIC AFTER RESPONSE INTERCEPT 
-            // For Example add Date & Time of response in Body fields
-            // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+          // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
+          // For Example add Date & Time of response in Body fields
+         
+          var NewResponse=body;
+          if(bodyContentType==="application/json")  // if body is a Json
+                 NewResponse.otherInformation=Date.now(); // add response date&time
        
-            // If you are here a res.send, res.write, res.end, res.render ....
-            // must be already called in your original route response  
-          
-            var NewResponse=body;
-            if(bodyContentType==="application/json")  // if body is a Json
-                     NewResponse.otherInformation=Date.now(); // add response date&time
-       
-            callback(NewResponse); // callback function with the new content 
-       
+          callback(NewResponse); // callback function with the new content        
         }));    
     
         router.get("/onlythis", function(req,res,next){
@@ -153,8 +131,7 @@ Define a router for "/intercept", for example in file routeInt.js
         });
             
         // ..... other routes to intercept .....
-        
-    // XXXXXXXXXXXX END of routes to intercept XXXXXXXXXXX      
+             
 
 ```
 
@@ -186,25 +163,17 @@ Define a router for "/intercept", for example in file routeInt.js
        res.send({data:"...."}); // responseinterceptor intercept this response
    });
    
-   
-   
+     
     var middlewareInterceptor= responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
    
-   // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   //         YOUR LOGIC AFTER RESPONSE INTERCEPT 
+   // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
    // For Example add Date & Time of response in Body fields
-   // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   
-   // If you are here a res.send, res.write, res.end, res.render ....
-   // must be already called in your original route response  
-   
    
    var NewResponse=body;
    if(bodyContentType==="application/json")  // if body is a Json
          NewResponse.otherInformation=Date.now(); // add response date&time
    
-   callback(NewResponse); // callback function with the new content 
-   
+   callback(NewResponse); // callback function with the new content   
    }));   
 
 ```
@@ -228,21 +197,20 @@ Intercept a group of routes and add at the the response the timestamp in a filed
     
     var responseinterceptor = require('responseinterceptor');
     
-    // XXXXXXXXXXXX BEGIN of routes to not intercept XXXXXXXXXXX
+    // ############ BEGIN of routes to not intercept ############
         router.get("/", function(req,res,next){
             res.status(200).send({"content":"myContent"});
         });
                         
         // ..... other routes .....
         
-    // XXXXXXXXXXXX END of routes to not intercept XXXXXXXXXXX
+   
     
     
-    // XXXXXXXXXXXX BEGIN of routes to intercept XXXXXXXXXXX
+    // ############ BEGIN of routes to intercept ########################
     
         router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-                  
-          
+        
             var NewResponse=body;
             if(bodyContentType==="application/json")  // if body is a Json
                      NewResponse.timestamp=Date.now(); // add response date&time
@@ -258,7 +226,7 @@ Intercept a group of routes and add at the the response the timestamp in a filed
             
         // ..... other routes to intercept .....
         
-    // XXXXXXXXXXXX END of routes to intercept XXXXXXXXXXX      
+      
 
 ```
 
@@ -321,20 +289,17 @@ Intercept a group of routes and replace all html tag <ul> to <ol>
                         </body>
                     </html>`;
     
-    // XXXXXXXXXXXX BEGIN of routes to not intercept XXXXXXXXXXX
+    // ############ BEGIN of routes to not intercept ############
         router.get("/", function(req,res,next){
             res.status(200).send(htmlContent);
         });
                         
         // ..... other routes .....
         
-    // XXXXXXXXXXXX END of routes to not intercept XXXXXXXXXXX
     
-    
-    // XXXXXXXXXXXX BEGIN of routes to intercept XXXXXXXXXXX
+    // ############ BEGIN of routes to intercept ############
     
         router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-                  
           
             var NewResponse=body;
             if(bodyContentType==="text/html")  // if body is a html
@@ -350,8 +315,6 @@ Intercept a group of routes and replace all html tag <ul> to <ol>
         });
             
         // ..... other routes to intercept .....
-        
-    // XXXXXXXXXXXX END of routes to intercept XXXXXXXXXXX      
 
 ```
 
