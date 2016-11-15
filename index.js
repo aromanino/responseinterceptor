@@ -2,7 +2,8 @@
 var etag = require('etag');
 
 
-function overrideEnd(res,callback){
+function overrideEnd(req,res,callback){
+    var oldEnd = res.end;
     res.end = function (chunk) {
 
         if(!(res.statusCode==304)){
@@ -49,16 +50,14 @@ function overrideEnd(res,callback){
 }
 
 
-exports.interceptOnFly=function(res,callback){
-  overrideEnd(res,callback);
+exports.interceptOnFly=function(req,res,callback){
+  overrideEnd(req,res,callback);
 };
 
 exports.intercept=function(callback){
 
     return(function(req,res,next){
-
-        var oldEnd = res.end;
-        overrideEnd(res,callback);
+        overrideEnd(req,res,callback);
         next();
     });
 };
