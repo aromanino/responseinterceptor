@@ -51,7 +51,7 @@ function overrideEnd(req,res,callback){
 
 
 exports.interceptOnFly=function(req,res,callback){
-  overrideEnd(req,res,callback);
+    overrideEnd(req,res,callback);
 };
 
 exports.intercept=function(callback){
@@ -61,5 +61,3 @@ exports.intercept=function(callback){
         next();
     });
 };
-
-
