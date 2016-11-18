@@ -251,14 +251,12 @@ var express = require('express');
 var app = express.();
 var responseinterceptor = require('responseinterceptor');  
 
-        
 // ############ BEGIN of routes to intercept ########################
     app.use(responseinterceptor.intercept(function(content, contentType ,request, callback){
        // Your Logic
        // NewResponse=".... new Content ....";
         callback(NewResponse); // callback function with the new content
-    }));   
-    
+    }));
 ```
 ### <a name="interceptOnFly"></a>`interceptOnFly(req,res,fn)`
 This function don't return an express middleware and must be used internally in the endpoint logic to intercept response
@@ -274,10 +272,11 @@ interceptOnFly(req,res,callback):
 *   fn   : The function "fn" defined as "fn(content,contentType,request,callback)" is the function that should be executed 
            and called by responseinterceptor when the response is intercepted.
            "fn" function is defined as fn(content,contentType,request,callback):
-           *   content     : contains the content of the intercepted response.
-           *   contentType : a string that describe the contentType in content. For example "application/json" , "text/html" , "text/css" ...
-           *   request     : An object containing the original "req" express request
-           *   callback    : The callback function to call when function ends, with the new response content as a parameter.
+       *   sas           
+       *   content     : contains the content of the intercepted response.
+       *   contentType : a string that describe the contentType in content. For example "application/json" , "text/html" , "text/css" ...
+       *   request     : An object containing the original "req" express request
+       *   callback    : The callback function to call when function ends, with the new response content as a parameter.
                              callback function is described as : callback(newContent).
                              newContent: The new content to send to the client. The newContent type could be String, Object, html, text ..... 
       
