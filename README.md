@@ -35,10 +35,7 @@ Just require it like a simple package:
 var responseinterceptor = require('responseinterceptor');
 ```
 
-### responseinterceptor middleware
-response interceptor is a middleware that intercept an express response, so you can use it in the routes that you want intercept
-
-#### <a name="all"></a> Intercept all routes
+### <a name="all"></a> Intercept all routes
 To intercept all routes use it in app.js before all app.use(".....") route functions 
 ```javascript
 var responseinterceptor = require('responseinterceptor');
@@ -64,9 +61,9 @@ app.use("exampleRoute_Two",routeTwo);
 ```
 
 
-#### <a name="group"></a> Intercept a group of routes
+### <a name="group"></a> Intercept a group of routes
 
-#### <a name="allroute"></a> Intercept a group of routes
+### <a name="allroute"></a> Intercept a group of routes
 To intercept only a group of routes use responseinterceptor middleware after the routes that do not have to be intercepted 
 and before all routes to intercept. For example intercept all routes "/intercept/onlythis".
 ```javascript
@@ -109,7 +106,7 @@ var app=express();
     // ..... other routes to intercept .....
 ```
 
-#### <a name="allgroup"></a> Intercept a group of routes using express routing
+### <a name="allgroup"></a> Intercept a group of routes using express routing
 To intercept only a group of routes using express routing use responseinterceptor middleware in a separate express file routing definition.
 For example intercept all routes "/intercept". 
 Define a router for "/intercept", for example in file routeInt.js
@@ -147,7 +144,7 @@ In app.js use the "/intercept" route
 ```
 
 
-#### <a name="single"></a> Intercept single routes
+### <a name="single"></a> Intercept single routes
 To intercept single route response use "responseinterceptor" not like a global level middleware but 
 in the single endpoint definition level, as middleware or in the endpoint logic.
 You would think that, using the "responseinterceptor" in the single endpoint could having no sense because you would think
@@ -159,7 +156,7 @@ For example:
 *   If you need to intercept the response content after page rendering from a template engine like "jade/pug" to modify 
     or log some contents. intercept response content after res.render().  
 
-##### <a name="single"></a> Intercept a single route with responseinterceptor middleware
+#### <a name="single"></a> Intercept a single route with responseinterceptor middleware
 To intercept a single route use responseinterceptor middleware in the endpoint route definition. 
 For example intercept all route "/intercept/"..." in post method but not in get method. 
 ```javascript
@@ -199,7 +196,7 @@ app.post("/interceptable",middlewareInterceptor,function(req,res,next){
 });
 ```
 
-##### <a name="onfly"></a> Intercept a single route using responseinterceptor not as a middleware
+#### <a name="onfly"></a> Intercept a single route using responseinterceptor not as a middleware
 To intercept a single route using responseinterceptor not as middleware but only if a particular condition 
 in the endpoint logic is satisfied you should use interceptOnFly function like in the example bellow 
 For example intercept a route "/intercept/"..." in get method only if request have a filed "intercept" set to true
@@ -234,6 +231,7 @@ app.get("/intercept",function(req,res,next){
 ## <a name="reference"></a>`Reference`
 
 ### <a name="intercept"></a>`intercept(fn)`
+responseinterceptor intercept(fn) is a middleware that intercept an express response, so you can use it in the routes that you want intercept.
 This function return an express middleware used to intercept response. It accept a function "fn" as a param.
 The function "fn" defined as "fn(content,contentType,request,callback)" is the function that should be executed 
 and called by responseinterceptor when the response is intercepted.
