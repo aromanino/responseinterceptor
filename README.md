@@ -266,7 +266,7 @@ The function "fn" defined as "fn(content,contentType,request,callback)" is the f
 and called by responseinterceptor when the response is intercepted.
 
 "interceptOnFly" function is defined as bellow:
-interceptOnFly(req,res,callback):
+interceptOnFly(req,res,fn):
 *   req  : An object containing the original "req" express request
 *   res  : An object containing the original "res" express response to intercept
 *   fn   : The function "fn" defined as "fn(content,contentType,request,callback)" is the function that should be executed 
