@@ -393,7 +393,7 @@ var htmlContent=`<html>
                  body.replace("<ul>","<ol>");
         callback(NewResponse); // callback function with the new html content
     }));
-    router.get("/withTimestamp", function(req,res,n ext){
+    router.get("/withOLTag", function(req,res,n ext){
         // responseinterceptor intercept this response 
         res.status(200).send(htmlContent);
     });
@@ -429,7 +429,7 @@ Connection: keep-alive
         </body>
 </html>
 $
-$ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://hostname/intercept/withTimestamp
+$ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://hostname/intercept/withOLTag
 X-Powered-By: Express
 Content-Type: application/json; charset=utf-8
 Content-Length: 316
