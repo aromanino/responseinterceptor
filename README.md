@@ -271,8 +271,7 @@ interceptOnFly(req,res,callback):
 *   res  : An object containing the original "res" express response to intercept
 *   fn   : The function "fn" defined as "fn(content,contentType,request,callback)" is the function that should be executed 
            and called by responseinterceptor when the response is intercepted.
-           "fn" function is defined as fn(content,contentType,request,callback):
-       *   sas           
+           "fn" function is defined as fn(content,contentType,request,callback):             
        *   content     : contains the content of the intercepted response.
        *   contentType : a string that describe the contentType in content. For example "application/json" , "text/html" , "text/css" ...
        *   request     : An object containing the original "req" express request
