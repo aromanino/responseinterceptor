@@ -305,7 +305,30 @@ app.get("/resource",function(req,res,next){
 ### <a name="ex1"></a>`Intercept response and add information to response if Content-Type is "application/json"`
 
 Intercept a group of routes and add at the the response the timestamp in a filed called "timestamp" if body Content-Type is "application/json"
-
+```javascript
+var express = require('express');
+var router = express.Router();
+var responseinterceptor = require('responseinterceptor');
+    
+// ############ BEGIN of routes to not intercept ############
+    router.get("/", function(req,res,next){
+        res.status(200).send({"content":"myContent"});
+    });             
+    // ..... other routes .....
+        
+// ############ BEGIN of routes to intercept ########################
+    router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
+        var NewResponse=body;
+        if(bodyContentType==="application/json")  // if body is a Json
+                 NewResponse.timestamp=Date.now(); // add response date&time
+        callback(NewResponse); // callback function with the new content
+    }));    
+    router.get("/withTimestamp", function(req,res,n ext){
+        // responseinterceptor intercept this response 
+        res.status(200).send({"content":"myContent"});
+    });
+    // ..... other routes to intercept .....
+```
 
 In app.js use the "/intercept" route
 ```javascript    
