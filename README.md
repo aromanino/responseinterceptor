@@ -63,7 +63,7 @@ app.use("exampleRoute_Two",routeTwo);
 
 ### <a name="group"></a> Intercept a group of routes
 
-### <a name="allroute"></a> Intercept a group of routes
+### <a name="allroute"></a> Intercept a group of routes defined in the same file
 To intercept only a group of routes use responseinterceptor middleware after the routes that do not have to be intercepted 
 and before all routes to intercept. For example intercept all routes "/intercept/onlythis".
 ```javascript
