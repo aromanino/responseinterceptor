@@ -6,14 +6,14 @@ and update or upgrade response with your logic.
  * [Using responseinterceptor](#using) 
     * [Intercept all routes](#all)
     * [Intercept a group of routes](#group)
-    * [Intercept a group of routes with all routes defined in the same file](#allroute)
-    * [Intercept a group of routes using express routing defined in different file](#allgroup) 
-    * [Intercept a single route](#single)  
-    * [Intercept a single route using responseinterceptor not as a middleware](#onfly)   
+        * [Intercept a group of routes with all routes defined in the same file](#allroute)
+        * [Intercept a group of routes using express routing defined in different file](#allgroup)         
+    * [Intercept single route](#single)    
+        * [Intercept a single route](#singlemiddle)  
+        * [Intercept a single route using responseinterceptor not as a middleware](#onfly)   
  * [Reference](#reference)  
     * [intercept](#intercept)  
-    * [interceptOnFly](#interceptOnFly) 
-  
+    * [interceptOnFly](#interceptOnFly)   
  * [Examples](#examples)
     * [Intercept response and add information to response if Content-Type is "application/json"](#ex1)
     * [Intercept response and add information to response if Content-Type is "text/html"](#ex2)
@@ -156,7 +156,7 @@ For example:
 *   If you need to intercept the response content after page rendering from a template engine like "jade/pug" to modify 
     or log some contents. intercept response content after res.render().  
 
-#### <a name="single"></a> Intercept a single route with responseinterceptor middleware
+#### <a name="singlemiddle"></a> Intercept a single route with responseinterceptor middleware
 To intercept a single route use responseinterceptor middleware in the endpoint route definition. 
 For example intercept all route "/intercept/"..." in post method but not in get method. 
 ```javascript
