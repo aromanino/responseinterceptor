@@ -62,6 +62,7 @@ app.use("exampleRoute_Two",routeTwo);
 
 
 ### <a name="group"></a> Intercept a group of routes
+you can decide "which and as" routes to intercept using or not express router. Read bellow to other details. 
 
 #### <a name="allroute"></a> Intercept a group of routes defined in the same file
 To intercept only a group of routes use responseinterceptor middleware after the routes that do not have to be intercepted 
