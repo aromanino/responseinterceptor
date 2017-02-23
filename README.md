@@ -2,6 +2,8 @@
 This package is **Middleware** for express responses. It allows intercept an express response ( res.send , res.end , res.write, res.render, ... ) 
 and update or upgrade response with your logic.
 
+[![NPM](https://nodei.co/npm/responseinterceptor.png?downloads=true&downloadRank=true&stars=true)![NPM](https://nodei.co/npm-dl/responseinterceptor.png?months=6&height=3)](https://nodei.co/npm/responseinterceptor/)
+
  * [Installation](#installation)
  * [Using responseinterceptor](#using) 
     * [Intercept all routes](#all)
