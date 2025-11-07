@@ -230,6 +230,66 @@ app.get("/intercept",function(req,res,next){
    res.send({data:"...."});                                        
 });
 ```
+#### <a name="interceptByStatusCode"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client.
+This middleware overrides `res.end()` to detect when the response status matches
+one of the specified status codes. If a match occurs, it executes a user-defined callback
+instead of sending the original response.
+
+```javascript
+var express = require('express');
+var app=express();
+var responseinterceptor = require('responseinterceptor');
+
+// Intercept all 403 Forbidden responses
+app.use(responseinterceptor.interceptByStatusCode(403, (req, respond) => {
+    respond(200, '<h1>Access Denied</h1><p>You are not authorized to view this page.</p>');
+}));
+
+// Example route that triggers interception
+app.get('/private', (req, res) => {
+    res.status(403).send('Forbidden');
+});
+```
+
+#### <a name="interceptByStatusCodeRedirectTo"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client and redirect to url by callback.
+This middleware overrides `res.end()` to detect when the response status matches
+one of the specified status codes. If a match occurs, it executes a user-defined callback
+instead of sending the original response and or redirect to an url.
+
+```javascript
+var express = require('express');
+var app=express();
+var responseinterceptor = require('responseinterceptor');
+
+// Intercept all 403 Forbidden responses
+app.use(responseinterceptor.interceptByStatusCodeRedirectTo(403, (req, respond) => {
+    respond('/index');
+}));
+
+// Example route that triggers interception and redirect to /index by interceptByStatusCodeRedirectTo middleware
+app.get('/private', (req, res) => {
+    res.status(403).send('Forbidden');
+});
+```
+
+#### <a name="interceptByStatusCodeRedirectTo"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client and redirect to url by static String.
+This middleware overrides `res.end()` to detect when the response status matches
+one of the specified status codes. If a match occurs, it executes a user-defined callback
+instead of sending the original response and or redirect to an url.
+
+```javascript
+var express = require('express');
+var app=express();
+var responseinterceptor = require('responseinterceptor');
+
+// Intercept all 403 Forbidden responses
+app.use(responseinterceptor.interceptByStatusCodeRedirectTo(403, '/index'));
+
+// Example route that triggers interception and redirect to /index by interceptByStatusCodeRedirectTo middleware
+app.get('/private', (req, res) => {
+    res.status(403).send('Forbidden');
+});
+```
 
 ## <a name="reference"></a>`Reference`
 
@@ -302,6 +362,143 @@ app.get("/resource",function(req,res,next){
     res.send("Your Interceptable Content");
 });
 ```
+
+### <a name="interceptByStatusCode"></a>`interceptByStatusCode(statusCodes, callback)`
+Intercepts Express.js responses based on specific HTTP status codes for example, to render a custom HTML page or JSON message instead of the default error output.
+
+Description : interceptByStatusCode(statusCodes, callback) temporarily overrides res.end() to detect when a response is about to be sent with a specific status code (e.g., 403, 404, 500).
+When a match occurs, it calls your callback, allowing you to customize the response before it’s sent. A built-in anti-loop flag ensures the middleware doesn’t re-trigger itself when the callback sends the new response.
+
+Signature
+interceptByStatusCode(statusCodes, callback)
+
+Parameter	Type	Description
+statusCodes	`number	number[]`
+callback	(req, respond) => void	Function executed when one of the specified status codes is detected.
+Callback Parameters:
+ - req: The Express request object. 
+ - respond(newStatusCode, content): A helper function to send a new response. 
+   - newStatusCode — optional new status code (e.g., 200 or 403)
+   - content — html, string or object to send in the response
+
+Example
+👉 The client will receive the custom HTML page instead of the plain "Forbidden" message.
+```javascript
+// Intercept all 403 Forbidden responses
+app.use(interceptByStatusCode(403, (req, respond) => {
+respond(200, '<h1>Access Denied</h1><p>You are not authorized to view this page.</p>');
+}));
+
+// Example route that triggers interception
+app.get('/private', (req, res) => {
+res.status(403).send('Forbidden');
+});
+```
+
+
+
+### <a name="interceptByStatusCodeRedirectTo"></a>`interceptByStatusCodeRedirectTo(statusCodes, callback)`
+`interceptByStatusCodeRedirectTo` is an Express.js middleware that **intercepts outgoing HTTP responses** with specific status codes
+(e.g., `403`, `404`, `500`) and automatically **redirects** the request to another route.
+It can be used to handle unauthorized, forbidden, or missing resources gracefully — for example, sending users to a custom
+“Access Denied” or “Not Found” page.
+
+The middleware supports **two usage modes**:
+
+- **Callback mode:** dynamic redirect logic based on the request
+- **Static route mode:** automatic redirect to a predefined route
+
+---
+
+#### ⚙️ Function Signature
+
+```js
+interceptByStatusCodeRedirectTo(statusCodes, callback)
+```
+
+---
+
+#### 📥 Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `statusCodes` | `number` \| `number[]` | A single status code (e.g. `403`) or an array of codes (e.g. `[403, 404]`) to intercept. |
+| `callback` | `function` \| `string` | Determines how redirection occurs. <br>• If a **function**, it will be called as `callback(req, redirect)` where `redirect` is a helper to trigger a redirect.<br>• If a **string**, it represents a static route path to redirect to directly. |
+
+---
+
+#### 🚀 Usage Examples
+
+##### 1️⃣ Dynamic Redirect Logic (callback mode)
+
+Redirect users differently depending on the request or session:
+
+```js
+const { interceptByStatusCodeRedirectTo } = require('responseinterceptor');
+
+app.use(
+  interceptByStatusCodeRedirectTo(403, (req, redirect) => {
+    if (req.user) {
+      redirect('/no-access');
+    } else {
+      redirect('/login');
+    }
+  })
+);
+```
+
+- If a `403` response is about to be sent:
+    - Logged-in users are redirected to `/no-access`.
+    - Unauthenticated users are redirected to `/login`.
+
+---
+
+##### 2️⃣ Static Redirect (string mode)
+
+Redirect all matching status codes to a fixed route:
+
+```js
+app.use(
+  interceptByStatusCodeRedirectTo([403, 404], '/error-page')
+);
+```
+
+- Any `403` or `404` response automatically redirects to `/error-page`.
+
+---
+
+#### 🧠 How It Works
+
+- The middleware **overrides** `res.end()` temporarily to intercept the response before it is finalized.
+- When the outgoing `statusCode` matches one of the provided values:
+    - The `callback` (or redirect path) is executed.
+    - The response is redirected using `res.redirect(newRoute)`.
+- A safety flag (`res.__interceptHandled`) prevents **recursive loops**, ensuring that redirects do not trigger interception again.
+- Non-matching responses continue normally using the original `res.end()`.
+
+---
+
+#### 🧩 Notes
+
+- Works transparently with any Express route or controller.
+- Compatible with async request handlers and standard middleware chaining.
+- Automatically cleans up internal flags after the response finishes.
+
+---
+
+#### ✅ Example Use Cases
+
+- Redirect users to a login page when a `403 Forbidden` occurs.
+- Redirect to a friendly error page on `404 Not Found`.
+- Implement centralized handling for maintenance mode (`503 Service Unavailable`).
+
+---
+
+#### 🧱 Return Value
+
+Returns an Express middleware function `(req, res, next)`.
+
+
 
 ## <a name="examples"></a>`Examples`
 
