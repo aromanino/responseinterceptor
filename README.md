@@ -230,7 +230,7 @@ app.get("/intercept",function(req,res,next){
    res.send({data:"...."});                                        
 });
 ```
-#### <a name="interceptByStatusCode"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client.
+### <a name="interceptByStatusCode"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client.
 This middleware overrides `res.end()` to detect when the response status matches
 one of the specified status codes. If a match occurs, it executes a user-defined callback
 instead of sending the original response.
@@ -251,7 +251,7 @@ app.get('/private', (req, res) => {
 });
 ```
 
-#### <a name="interceptByStatusCodeRedirectTo"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client and redirect to url by callback.
+### <a name="interceptByStatusCodeRedirectTo"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client and redirect to url by callback.
 This middleware overrides `res.end()` to detect when the response status matches
 one of the specified status codes. If a match occurs, it executes a user-defined callback
 instead of sending the original response and or redirect to an url.
@@ -272,7 +272,7 @@ app.get('/private', (req, res) => {
 });
 ```
 
-#### <a name="interceptByStatusCodeRedirectTo"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client and redirect to url by static String.
+### <a name="interceptByStatusCodeRedirectTo"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client and redirect to url by static String.
 This middleware overrides `res.end()` to detect when the response status matches
 one of the specified status codes. If a match occurs, it executes a user-defined callback
 instead of sending the original response and or redirect to an url.
