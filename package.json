@@ -1,6 +1,6 @@
 {
   "name": "responseinterceptor",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "dependencies": {
     "async": "^2.1.2",
     "debug": "^4.4.3",
