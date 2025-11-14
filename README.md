@@ -1,361 +1,394 @@
 # responseinterceptor
-This package is **Middleware** for express responses. It allows intercept an express response ( res.send , res.end , res.write, res.render, ... ) 
-and update or upgrade response with your logic.
 
-[![NPM](https://nodei.co/npm/responseinterceptor.png?downloads=true&downloadRank=true&stars=true)![NPM](https://nodei.co/npm-dl/responseinterceptor.png?months=6&height=3)](https://nodei.co/npm/responseinterceptor/)
+This package is **Middleware** for Express responses. It allows you to intercept an Express response (`res.send`, `res.end`, `res.write`, `res.render`, etc.) and update or upgrade the response with your custom logic.
 
- * [Installation](#installation)
- * [Using responseinterceptor](#using) 
-    * [Intercept all routes](#all)
-    * [Intercept a group of routes](#group)
-        * [Intercept a group of routes with all routes defined in the same file](#allroute)
-        * [Intercept a group of routes using express routing defined in different file](#allgroup)         
-    * [Intercept single route](#single)    
-        * [Intercept a single route](#singlemiddle)  
-        * [Intercept a single route using responseinterceptor not as a middleware](#onfly)   
- * [Reference](#reference)  
-    * [intercept](#intercept)  
-    * [interceptOnFly](#interceptOnFly)   
- * [Examples](#examples)
-    * [Intercept response and add information to response if Content-Type is "application/json"](#ex1)
-    * [Intercept response and add information to response if Content-Type is "text/html"](#ex2)
- 
-## <a name="installation"></a>Installation
+[![NPM](https://nodei.co/npm/responseinterceptor.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/responseinterceptor/)
+
+[![NPM](https://nodei.co/npm-dl/responseinterceptor.png?months=6&height=3)](https://nodei.co/npm/responseinterceptor/)
+
+## Features
+
+- ✅ Intercept and modify Express responses globally or selectively
+- ✅ Support for all response methods (`res.send()`, `res.json()`, `res.render()`, etc.)
+- ✅ Conditional interception based on content type
+- ✅ Status code-based interception with custom handlers
+- ✅ Automatic redirection based on status codes
+- ✅ On-the-fly interception for dynamic scenarios
+- ✅ Zero dependencies
+- ✅ TypeScript support
+
+## Table of Contents
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Using responseinterceptor](#using-responseinterceptor) 
+  - [Intercept all routes](#intercept-all-routes)
+  - [Intercept a group of routes](#intercept-a-group-of-routes)
+    - [Intercept a group of routes defined in the same file](#intercept-a-group-of-routes-defined-in-the-same-file)
+    - [Intercept a group of routes using express routing](#intercept-a-group-of-routes-using-express-routing)         
+  - [Intercept single routes](#intercept-single-routes)    
+    - [Intercept a single route with middleware](#intercept-a-single-route-with-responseinterceptor-middleware)  
+    - [Intercept a single route on-the-fly](#intercept-a-single-route-using-responseinterceptor-not-as-a-middleware)   
+  - [Intercept by status code](#intercepts-http-responses-based-on-specific-status-codes-before-they-are-sent-to-the-client)
+  - [Intercept and redirect (callback)](#intercepts-http-responses-based-on-specific-status-codes-before-they-are-sent-to-the-client-and-redirect-to-url-by-callback)
+  - [Intercept and redirect (static)](#intercepts-http-responses-based-on-specific-status-codes-before-they-are-sent-to-the-client-and-redirect-to-url-by-static-string)
+- [Reference](#reference)  
+  - [intercept](#interceptfn)  
+  - [interceptOnFly](#interceptonflyreqresfn)
+  - [interceptByStatusCode](#interceptbystatuscodestatuscodes-callback)
+  - [interceptByStatusCodeRedirectTo](#interceptbystatuscoderedirecttostatuscodes-callback)   
+- [Examples](#examples)
+  - [Intercept JSON responses](#intercept-response-and-add-information-to-response-if-content-type-is-applicationjson)
+  - [Intercept HTML responses](#intercept-response-and-add-information-to-response-if-content-type-is-texthtml)
+- [TypeScript Support](#typescript-support)
+- [License](#license)
+- [Authors](#authors)
+
+## Installation
+
 To use **responseinterceptor** install it in your project by typing:
 
 ```shell
 $ npm install responseinterceptor
 ```
 
-## <a name="using"></a>Using responseinterceptor
+## Using responseinterceptor
 
 ### Include responseinterceptor
 
 Just require it like a simple package:
 
 ```javascript
-var responseinterceptor = require('responseinterceptor');
+const responseinterceptor = require('responseinterceptor');
 ```
 
-### <a name="all"></a> Intercept all routes
-To intercept all routes use it in app.js before all app.use(".....") route functions 
+### Intercept all routes
+
+To intercept all routes, use it in `app.js` before all `app.use()` route functions:
+
 ```javascript
-var responseinterceptor = require('responseinterceptor');
-var routeTwo=require("./routes/routeTwo");
-var app=express();
+const express = require('express');
+const responseinterceptor = require('responseinterceptor');
+const routeTwo = require("./routes/routeTwo");
+const app = express();
  
-app.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-    // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
-    // For Example add Date & Time of response in Body fields
-    var NewResponse=body;
-    if(bodyContentType==="application/json")  // if body is a Json
-         NewResponse.otherInformation=Date.now(); // add response date&time
-    callback(NewResponse); // callback function with the new content 
+app.use(responseinterceptor.intercept(function(body, bodyContentType, request, callback){
+    // Your custom logic after intercepting the response
+    // Example: Add timestamp to response body
+    let newResponse = body;
+    if(bodyContentType === "application/json")  // Check if response is JSON
+         newResponse.otherInformation = Date.now(); // Add current timestamp
+    callback(newResponse); // Return modified response
 }));  
 
-// All routes defined under the responseinterceptor middleware will intercetate
-app.use("exampleRoute_one",function(req,res,next){
+// All routes defined below this middleware will be intercepted
+app.use("exampleRoute_one", function(req, res, next){
     // your logic
 }); 
-app.use("exampleRoute_Two",routeTwo);  
+app.use("exampleRoute_Two", routeTwo);  
 
-//.... Other routes ...  
+// Other routes...  
 ```
 
 
-### <a name="group"></a> Intercept a group of routes
-you can decide "which and as" routes to intercept using or not express router. Read bellow to other details. 
+### Intercept a group of routes
 
-#### <a name="allroute"></a> Intercept a group of routes defined in the same file
-To intercept only a group of routes use responseinterceptor middleware after the routes that do not have to be intercepted 
-and before all routes to intercept. For example intercept all routes "/intercept/onlythis".
+You can decide which routes to intercept using or not using Express router. Read below for more details. 
+
+#### Intercept a group of routes defined in the same file
+
+To intercept only a group of routes, use responseinterceptor middleware after the routes that should not be intercepted and before all routes to intercept. For example, intercept all routes matching `"/intercept/onlythis"`:
+
 ```javascript
-var express = require('express');    
-var responseinterceptor = require('responseinterceptor');
-var app=express();
-    
+const express = require('express');    
+const responseinterceptor = require('responseinterceptor');
+const app = express();
     
 // ############ Group of routes to not intercept ############
-    app.get("/", function(req,res,next){
-        // your logic
-    });    
-    app.post("/", function(req,res,next){
-        // your logic
-    });
-    app.get("/intercept", function(req,res,next){
-        // your logic
-    });
-    // ..... other routes to not intercept .....
-        
+app.get("/", function(req, res, next){
+    // your logic
+});    
+app.post("/", function(req, res, next){
+    // your logic
+});
+app.get("/intercept", function(req, res, next){
+    // your logic
+});
+// Additional routes that will NOT be intercepted...
+    
 // ############ Group of routes to intercept ############
-    // responseinterceptor middleware before all routes to intercept
-    app.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-      // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
-      // For Example add Date & Time of response in Body fields
-      var NewResponse=body;
-          
-      if(bodyContentType==="application/json")  // if body is a Json
-             NewResponse.otherInformation=Date.now(); // add response date&time
-      callback(NewResponse); // callback function with the new content        
-    }));  
-    app.get("/intercept/onlythis", function(req,res,next){
-        // your logic
-        res.send({data:"...."}); // responseinterceptor intercept this response
-    });
-    app.post("/intercept/onlythis", function(req,res,next){
-        // your logic
-        res.send({data:"...."}); // responseinterceptor intercept this response
-    }); 
-    // ..... other routes to intercept .....
-```
-
-#### <a name="allgroup"></a> Intercept a group of routes using express routing
-To intercept only a group of routes using express routing use responseinterceptor middleware in a separate express file routing definition.
-For example intercept all routes "/intercept". 
-Define a router for "/intercept", for example in file routeInt.js
-```javascript
-var express = require('express');
-var router = express.Router();
-var responseinterceptor = require('responseinterceptor');
-
-// responseinterceptor before all routes to intercept
-router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){   
-    // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX       
-    // For Example add Date & Time of response in Body fields
-    var NewResponse=body;
-    if(bodyContentType==="application/json")  // if body is a Json
-         NewResponse.otherInformation=Date.now(); // add response date&time
-    callback(NewResponse); // callback function with the new content
-}));   
-// define routes to incerpt
-app.get("/", function(req,res,next){
+// Place responseinterceptor middleware before all routes you want to intercept
+app.use(responseinterceptor.intercept(function(body, bodyContentType, request, callback){
+  // Your custom logic after intercepting the response
+  // Example: Add timestamp to response body
+  let newResponse = body;
+      
+  if(bodyContentType === "application/json")  // Check if response is JSON
+         newResponse.otherInformation = Date.now(); // Add current timestamp
+  callback(newResponse); // Return modified response
+}));  
+app.get("/intercept/onlythis", function(req, res, next){
     // your logic
-    res.send({data:"...."}); // responseinterceptor intercept this response
+    res.send({data: "...."}); // This response WILL be intercepted
 });
-app.post("/alsothis", function(req,res,next){
+app.post("/intercept/onlythis", function(req, res, next){
     // your logic
-    res.send({data:"...."}); // responseinterceptor intercept this response
+    res.send({data: "...."}); // This response WILL be intercepted
 }); 
-// other routes to intercept ...
+// Additional routes that WILL be intercepted...
 ```
 
-In app.js use the "/intercept" route
-```javascript    
-   var routeInt = require('../routes/routeInt');
-   var app=express();
-   app.use('/intercept', routeInt);   
-```
+#### Intercept a group of routes using express routing
 
+To intercept only a group of routes using Express routing, use responseinterceptor middleware in a separate Express routing file. For example, intercept all routes under `"/intercept"`.
 
-### <a name="single"></a> Intercept single routes
-To intercept single route response use "responseinterceptor" not like a global level middleware but 
-in the single endpoint definition level, as middleware or in the endpoint logic.
-You would think that, using the "responseinterceptor" in the single endpoint could having no sense because you would think
-to include the interceptor function content directly in the endpoint definition before to send response. 
-But this is not always true, there are some real cases where you need to do it. 
-For example:
-*   If you need to save all response log included all information embedded in the response from the write/end function
-    (for example fields etag,content-lenght... are calculated in write/end after res.send call).
-*   If you need to intercept the response content after page rendering from a template engine like "jade/pug" to modify 
-    or log some contents. intercept response content after res.render().  
+Define a router for `"/intercept"`, for example in file `routeInt.js`:
 
-#### <a name="singlemiddle"></a> Intercept a single route with responseinterceptor middleware
-To intercept a single route use responseinterceptor middleware in the endpoint route definition. 
-For example intercept all route "/intercept/"..." in post method but not in get method. 
 ```javascript
-var express = require('express');
-var app=express();
-var responseinterceptor = require('responseinterceptor');
+const express = require('express');
+const router = express.Router();
+const responseinterceptor = require('responseinterceptor');
+
+// Place responseinterceptor middleware before all routes you want to intercept
+router.use(responseinterceptor.intercept(function(body, bodyContentType, request, callback){   
+    // Your custom logic after intercepting the response
+    // Example: Add timestamp to response body
+    let newResponse = body;
+    if(bodyContentType === "application/json")  // Check if response is JSON
+         newResponse.otherInformation = Date.now(); // Add current timestamp
+    callback(newResponse); // Return modified response
+}));   
+// define routes to intercept
+router.get("/", function(req, res, next){
+    // your logic
+    res.send({data: "...."}); // This response WILL be intercepted
+});
+router.post("/alsothis", function(req, res, next){
+    // your logic
+    res.send({data: "...."}); // This response WILL be intercepted
+}); 
+// Additional routes to intercept...
+
+module.exports = router;
+```
+
+In `app.js` use the `"/intercept"` route:
+
+```javascript    
+const express = require('express');
+const routeInt = require('./routes/routeInt');
+const app = express();
+
+app.use('/intercept', routeInt);   
+```
+
+
+### Intercept single routes
+
+To intercept a single route response, use responseinterceptor not as a global level middleware but at the single endpoint definition level, as middleware or in the endpoint logic.
+
+You might think that using responseinterceptor at the endpoint level makes no sense because you could include the interceptor logic directly before sending the response. However, this is not always true. There are real use cases where you need to do it:
+
+*   If you need to save all response logs including all information embedded in the response from the `write`/`end` function (for example, fields like `etag`, `content-length`, etc. are calculated in `write`/`end` after `res.send()` is called).
+*   If you need to intercept the response content after page rendering from a template engine like Jade/Pug to modify or log some contents (intercept response content after `res.render()`).
+
+#### Intercept a single route with responseinterceptor middleware
+
+To intercept a single route, use responseinterceptor middleware in the endpoint route definition. For example, intercept all `"/intercept/"` routes in POST method but not in GET method:
+
+```javascript
+const express = require('express');
+const app = express();
+const responseinterceptor = require('responseinterceptor');
     
-// not interceptable route
-app.get("/",function(req,res,next){
+// Route without interception
+app.get("/", function(req, res, next){
     
 });
-// interceptable route
-app.post("/",middlewareInterceptor ,function(req,res,next){
+// Route with interception applied via middleware
+app.post("/", middlewareInterceptor, function(req, res, next){
    // Your Logic   
-   res.send({data:"...."}); // responseinterceptor intercept this response
+   res.send({data: "...."}); // This response WILL be intercepted
 });
-var middlewareInterceptor= responseinterceptor.intercept(function(body, bodyContentType ,request, callback){   
-    // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
-    // For Example add Date & Time of response in Body fields   
-    var NewResponse=body;
-    if(bodyContentType==="application/json")  // if body is a Json
-         NewResponse.otherInformation=Date.now(); // add response date&time
-    callback(NewResponse); // callback function with the new content   
-}));
-// the next route even if defined after "responseinterceptor middleware" is not interceptable 
-// because "responseinterceptor middleware" s used not like a global  level middleware but 
-// at endpoint definition level.
-app.get("/notInterceptable",function(req,res,next){
+const middlewareInterceptor = responseinterceptor.intercept(function(body, bodyContentType, request, callback){   
+    // Your custom logic after intercepting the response
+    // Example: Add timestamp to response body
+    let newResponse = body;
+    if(bodyContentType === "application/json")  // Check if response is JSON
+         newResponse.otherInformation = Date.now(); // Add current timestamp
+    callback(newResponse); // Return modified response
+});
+// This route is NOT intercepted because the middleware is applied at route level,
+// not globally. Only routes explicitly using middlewareInterceptor will be intercepted.
+app.get("/notInterceptable", function(req, res, next){
     // Your Logic   
-    res.send({data:"...."}); // responseinterceptor not intercept this response
+    res.send({data: "...."}); // This response will NOT be intercepted
  });
  
-// next a interceptable route 
-app.post("/interceptable",middlewareInterceptor,function(req,res,next){
+// Another route with interception
+app.post("/interceptable", middlewareInterceptor, function(req, res, next){
  // Your Logic   
- res.send({data:"...."}); // responseinterceptor intercept also this response
+ res.send({data: "...."}); // This response WILL be intercepted
 });
 ```
 
-#### <a name="onfly"></a> Intercept a single route using responseinterceptor not as a middleware
-To intercept a single route using responseinterceptor not as middleware but only if a particular condition 
-in the endpoint logic is satisfied you should use interceptOnFly function like in the example bellow 
-For example intercept a route "/intercept/"..." in get method only if request have a filed "intercept" set to true
+#### Intercept a single route using responseinterceptor not as a middleware
+
+To intercept a single route using responseinterceptor not as middleware but only if a particular condition in the endpoint logic is satisfied, you should use the `interceptOnFly` function. For example, intercept a route `"/intercept"` in GET method only if the request has a field `"intercept"` set to `true`:
+
 ```javascript
-var express = require('express');
-var app=express();
-var responseinterceptor = require('responseinterceptor');
+const express = require('express');
+const app = express();
+const responseinterceptor = require('responseinterceptor');
     
-// not interceptable route
-app.get("/",function(req,res,next){
+// Route without interception
+app.get("/", function(req, res, next){
     
 });
-// intercept route only if request have a filed "intercept" set to true
-app.get("/intercept",function(req,res,next){
+// Conditionally intercept based on request parameter
+app.get("/intercept", function(req, res, next){
    // Your Logic   
-   if(req.query.intercept==true){
-        responseinterceptor.interceptOnFly(req, res, callback){   
-            // XXXXXXX ... YOUR LOGIC AFTER RESPONSE INTERCEPT ... XXXXXXX
-            // NewResponse=......
-            callback(NewResponse); // callback function with the new content   
-        }));
+   if(req.query.intercept == true){
+        responseinterceptor.interceptOnFly(req, res, function(body, bodyContentType, request, callback){   
+            // Your custom logic after intercepting the response
+            // newResponse = ...
+            callback(newResponse); // Return modified response
+        });
    }
    
-   // other logic .....
+   // Additional logic...
       
-   // responseinterceptor intercept this response 
-   // only if request have a filed "intercept" true
-   res.send({data:"...."});                                        
+   // This response will be intercepted ONLY if req.query.intercept is true
+   res.send({data: "...."});                                        
 });
 ```
-### <a name="interceptByStatusCode"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client.
-This middleware overrides `res.end()` to detect when the response status matches
-one of the specified status codes. If a match occurs, it executes a user-defined callback
-instead of sending the original response.
+
+### Intercept by HTTP status code
+
+This middleware overrides `res.end()` to detect when the response status matches one of the specified status codes. If a match occurs, it executes a user-defined callback instead of sending the original response.
 
 ```javascript
-var express = require('express');
-var app=express();
-var responseinterceptor = require('responseinterceptor');
+const express = require('express');
+const app = express();
+const responseinterceptor = require('responseinterceptor');
 
 // Intercept all 403 Forbidden responses
 app.use(responseinterceptor.interceptByStatusCode(403, (req, respond) => {
-    respond(200, '<h1>Access Denied</h1><p>You are not authorized to view this page.</p>');
+    app.render('access-denied', {}, (err, html) => {
+        if (!err) {
+            // Template rendered successfully - send custom HTML page
+            respond(200, html);
+        } else {
+            // Fallback if template fails - send simple HTML message
+            respond(200, '<h1>Access Denied</h1><p>You are not authorized to view this page.</p>');
+        }
+    });
 }));
 
-// Example route that triggers interception
+// Example route that triggers the interception
 app.get('/private', (req, res) => {
     res.status(403).send('Forbidden');
 });
 ```
 
-### <a name="interceptByStatusCodeRedirectTo"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client and redirect to url by callback.
-This middleware overrides `res.end()` to detect when the response status matches
-one of the specified status codes. If a match occurs, it executes a user-defined callback
-instead of sending the original response and or redirect to an url.
+### Intercept and redirect by HTTP status code (callback)
+
+This middleware overrides `res.end()` to detect when the response status matches one of the specified status codes. If a match occurs, it executes a user-defined callback to redirect to a URL.
 
 ```javascript
-var express = require('express');
-var app=express();
-var responseinterceptor = require('responseinterceptor');
+const express = require('express');
+const app = express();
+const responseinterceptor = require('responseinterceptor');
 
-// Intercept all 403 Forbidden responses
+// Intercept all 403 Forbidden responses and redirect dynamically
 app.use(responseinterceptor.interceptByStatusCodeRedirectTo(403, (req, respond) => {
     respond('/index');
 }));
 
-// Example route that triggers interception and redirect to /index by interceptByStatusCodeRedirectTo middleware
+// Example route that triggers interception and redirects to /index
 app.get('/private', (req, res) => {
     res.status(403).send('Forbidden');
 });
 ```
 
-### <a name="interceptByStatusCodeRedirectTo"></a>Intercepts HTTP responses based on specific status codes before they are sent to the client and redirect to url by static String.
-This middleware overrides `res.end()` to detect when the response status matches
-one of the specified status codes. If a match occurs, it executes a user-defined callback
-instead of sending the original response and or redirect to an url.
+### Intercept and redirect by HTTP status code (static URL)
+
+This middleware overrides `res.end()` to detect when the response status matches one of the specified status codes. If a match occurs, it redirects to a static URL.
 
 ```javascript
-var express = require('express');
-var app=express();
-var responseinterceptor = require('responseinterceptor');
+const express = require('express');
+const app = express();
+const responseinterceptor = require('responseinterceptor');
 
-// Intercept all 403 Forbidden responses
+// Intercept all 403 Forbidden responses and redirect to static URL
 app.use(responseinterceptor.interceptByStatusCodeRedirectTo(403, '/index'));
 
-// Example route that triggers interception and redirect to /index by interceptByStatusCodeRedirectTo middleware
+// Example route that triggers interception and redirects to /index
 app.get('/private', (req, res) => {
     res.status(403).send('Forbidden');
 });
 ```
 
-## <a name="reference"></a>`Reference`
+## Reference
 
-### <a name="intercept"></a>`intercept(fn)`
-responseinterceptor intercept(fn) is a middleware that intercept an express response, so you can use it in the routes that you want intercept.
-This function return an express middleware used to intercept response. It accept a function "fn" as a param.
-The function "fn" defined as "fn(content,contentType,request,callback)" is the function that should be executed 
-and called by responseinterceptor when the response is intercepted.
+### `intercept(fn)`
 
-"fn" function is defined as bellow
-fn(content,contentType,request,callback):
-*   content     : contains the content of the intercepted response.
-*   contentType : a string that describe the contentType in content. For example "application/json" , "text/html" , "text/css" ...
-*   request     : An object containing the original "req" express request
-*   callback    : The callback function to call when function ends, with the new response content as a parameter.
-                  callback function is described as : callback(newContent).
-                  newContent: The new content to send to the client. The newContent type could be String, Object, html, text ..... 
+The `intercept(fn)` function is a middleware that intercepts an Express response, so you can use it in the routes you want to intercept. This function returns an Express middleware used to intercept responses. It accepts a function `fn` as a parameter.
+
+The function `fn` is defined as `fn(content, contentType, request, callback)` and is executed when the response is intercepted.
+
+**Parameters:**
+
+*   `content` - Contains the content of the intercepted response
+*   `contentType` - A string describing the content type (e.g., `"application/json"`, `"text/html"`, `"text/css"`)
+*   `request` - An object containing the original Express `req` request
+*   `callback` - The callback function to call when your logic completes, with the new response content as a parameter: `callback(newContent)`. The `newContent` can be a String, Object, HTML, text, etc.
             
-Here an example of intercept middleware function:
-```javascript
-var express = require('express');
-var app = express.();
-var responseinterceptor = require('responseinterceptor');  
+**Example:**
 
-// ############ BEGIN of routes to intercept ########################
-    app.use(responseinterceptor.intercept(function(content, contentType ,request, callback){
-       // Your Logic
-       // NewResponse=".... new Content ....";
-        callback(NewResponse); // callback function with the new content
-    }));
+```javascript
+const express = require('express');
+const app = express();
+const responseinterceptor = require('responseinterceptor');  
+
+// Intercept all routes defined below
+app.use(responseinterceptor.intercept(function(content, contentType, request, callback){
+   // Your custom logic here
+   // newResponse = ".... new Content ....";
+    callback(newResponse); // Return modified response
+}));
 ```
-### <a name="interceptOnFly"></a>`interceptOnFly(req,res,fn)`
-This function don't return an express middleware and must be used internally in the endpoint logic to intercept response
-for example if you need to intercept response only if a particular condition in the endpoint logic is satisfied . 
-It accept three params req, res, fn.
-The function "fn" defined as "fn(content,contentType,request,callback)" is the function that should be executed 
-and called by responseinterceptor when the response is intercepted.
 
-"interceptOnFly" function is defined as bellow:
-interceptOnFly(req,res,fn):
-*   req  : An object containing the original "req" express request
-*   res  : An object containing the original "res" express response to intercept
-*   fn   : The function "fn" defined as "fn(content,contentType,request,callback)" is the function that should be executed 
-           and called by responseinterceptor when the response is intercepted.
-           "fn" function is defined as fn(content,contentType,request,callback):             
-       *   content     : contains the content of the intercepted response.
-       *   contentType : a string that describe the contentType in content. For example "application/json" , "text/html" , "text/css" ...
-       *   request     : An object containing the original "req" express request
-       *   callback    : The callback function to call when function ends, with the new response content as a parameter.
-                             callback function is described as : callback(newContent).
-                             newContent: The new content to send to the client. The newContent type could be String, Object, html, text ..... 
+### `interceptOnFly(req, res, fn)`
+
+This function doesn't return an Express middleware and must be used internally in the endpoint logic to intercept responses conditionally. For example, if you need to intercept the response only when a particular condition in the endpoint logic is satisfied.
+
+**Parameters:**
+
+*   `req` - The original Express `req` request object
+*   `res` - The original Express `res` response object to intercept
+*   `fn` - The interceptor function defined as `fn(content, contentType, request, callback)`:
+    *   `content` - Contains the content of the intercepted response
+    *   `contentType` - A string describing the content type
+    *   `request` - The original Express `req` request object
+    *   `callback` - The callback function: `callback(newContent)`
       
-Here an example of interceptOnFly function:
-```javascript
-var express = require('express');
-var app = express.();
-var responseinterceptor = require('responseinterceptor');  
+**Example:**
 
-app.get("/resource",function(req,res,next){
-    // your logic ...
-    var intercept= your_Logic ? true : false;
+```javascript
+const express = require('express');
+const app = express();
+const responseinterceptor = require('responseinterceptor');  
+
+app.get("/resource", function(req, res, next){
+    // Your logic to determine if interception is needed
+    const intercept = your_Logic ? true : false;
     if(intercept){
-        responseinterceptor.interceptOnFly(req,res,function(content, contentType ,request, callback){
-               // Your Logic
-               // NewResponse=".... new Content ....";
-                callback(NewResponse); // callback function with the new content
+        responseinterceptor.interceptOnFly(req, res, function(content, contentType, request, callback){
+               // Your custom logic here
+               // newResponse = ".... new Content ....";
+                callback(newResponse); // Return modified response
             })
     }
     
@@ -363,54 +396,66 @@ app.get("/resource",function(req,res,next){
 });
 ```
 
-### <a name="interceptByStatusCode"></a>`interceptByStatusCode(statusCodes, callback)`
-Intercepts Express.js responses based on specific HTTP status codes for example, to render a custom HTML page or JSON message instead of the default error output.
+### `interceptByStatusCode(statusCodes, callback)`
 
-Description : interceptByStatusCode(statusCodes, callback) temporarily overrides res.end() to detect when a response is about to be sent with a specific status code (e.g., 403, 404, 500).
-When a match occurs, it calls your callback, allowing you to customize the response before it’s sent. A built-in anti-loop flag ensures the middleware doesn’t re-trigger itself when the callback sends the new response.
+Intercepts Express.js responses based on specific HTTP status codes, for example, to render a custom HTML page or JSON message instead of the default error output.
 
-Signature
-interceptByStatusCode(statusCodes, callback)
+**Description:** 
 
-Parameter	Type	Description
-statusCodes	`number	number[]`
-callback	(req, respond) => void	Function executed when one of the specified status codes is detected.
-Callback Parameters:
- - req: The Express request object. 
- - respond(newStatusCode, content): A helper function to send a new response. 
-   - newStatusCode — optional new status code (e.g., 200 or 403)
-   - content — html, string or object to send in the response
+`interceptByStatusCode(statusCodes, callback)` temporarily overrides `res.end()` to detect when a response is about to be sent with a specific status code (e.g., 403, 404, 500). When a match occurs, it calls your callback, allowing you to customize the response before it's sent. A built-in anti-loop flag ensures the middleware doesn't re-trigger itself when the callback sends the new response.
 
-Example
-👉 The client will receive the custom HTML page instead of the plain "Forbidden" message.
+**Signature:**
+
 ```javascript
+interceptByStatusCode(statusCodes, callback)
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `statusCodes` | `number \| number[]` | A single status code or an array of status codes to intercept |
+| `callback` | `(req, respond) => void` | Function executed when one of the specified status codes is detected |
+
+**Callback Parameters:**
+
+- `req` - The Express request object
+- `respond(newStatusCode, content)` - A helper function to send a new response
+  - `newStatusCode` - Optional new status code (e.g., 200 or 403)
+  - `content` - HTML, string, or object to send in the response
+
+**Example:**
+
+```javascript
+const express = require('express');
+const app = express();
+const { interceptByStatusCode } = require('responseinterceptor');
+
 // Intercept all 403 Forbidden responses
 app.use(interceptByStatusCode(403, (req, respond) => {
-respond(200, '<h1>Access Denied</h1><p>You are not authorized to view this page.</p>');
+    respond(200, '<h1>Access Denied</h1><p>You are not authorized to view this page.</p>');
 }));
 
-// Example route that triggers interception
+// Example route that triggers the interception
 app.get('/private', (req, res) => {
-res.status(403).send('Forbidden');
+    res.status(403).send('Forbidden');
 });
 ```
 
 
 
-### <a name="interceptByStatusCodeRedirectTo"></a>`interceptByStatusCodeRedirectTo(statusCodes, callback)`
-`interceptByStatusCodeRedirectTo` is an Express.js middleware that **intercepts outgoing HTTP responses** with specific status codes
-(e.g., `403`, `404`, `500`) and automatically **redirects** the request to another route.
-It can be used to handle unauthorized, forbidden, or missing resources gracefully — for example, sending users to a custom
-“Access Denied” or “Not Found” page.
+### `interceptByStatusCodeRedirectTo(statusCodes, callback)`
+
+`interceptByStatusCodeRedirectTo` is an Express.js middleware that **intercepts outgoing HTTP responses** with specific status codes (e.g., `403`, `404`, `500`) and automatically **redirects** the request to another route. It can be used to handle unauthorized, forbidden, or missing resources gracefully — for example, sending users to a custom "Access Denied" or "Not Found" page.
 
 The middleware supports **two usage modes**:
 
-- **Callback mode:** dynamic redirect logic based on the request
-- **Static route mode:** automatic redirect to a predefined route
+- **Callback mode:** Dynamic redirect logic based on the request
+- **Static route mode:** Automatic redirect to a predefined route
 
 ---
 
-#### ⚙️ Function Signature
+#### Function Signature
 
 ```js
 interceptByStatusCodeRedirectTo(statusCodes, callback)
@@ -418,23 +463,25 @@ interceptByStatusCodeRedirectTo(statusCodes, callback)
 
 ---
 
-#### 📥 Parameters
+#### Parameters
 
 | Name | Type | Description |
 |------|------|-------------|
-| `statusCodes` | `number` \| `number[]` | A single status code (e.g. `403`) or an array of codes (e.g. `[403, 404]`) to intercept. |
-| `callback` | `function` \| `string` | Determines how redirection occurs. <br>• If a **function**, it will be called as `callback(req, redirect)` where `redirect` is a helper to trigger a redirect.<br>• If a **string**, it represents a static route path to redirect to directly. |
+| `statusCodes` | `number \| number[]` | A single status code (e.g., `403`) or an array of codes (e.g., `[403, 404]`) to intercept |
+| `callback` | `function \| string` | Determines how redirection occurs. <br>• If a **function**, it will be called as `callback(req, redirect)` where `redirect` is a helper to trigger a redirect<br>• If a **string**, it represents a static route path to redirect to directly |
 
 ---
 
-#### 🚀 Usage Examples
+#### Usage Examples
 
 ##### 1️⃣ Dynamic Redirect Logic (callback mode)
 
 Redirect users differently depending on the request or session:
 
 ```js
+const express = require('express');
 const { interceptByStatusCodeRedirectTo } = require('responseinterceptor');
+const app = express();
 
 app.use(
   interceptByStatusCodeRedirectTo(403, (req, redirect) => {
@@ -447,9 +494,9 @@ app.use(
 );
 ```
 
-- If a `403` response is about to be sent:
-    - Logged-in users are redirected to `/no-access`.
-    - Unauthenticated users are redirected to `/login`.
+If a `403` response is about to be sent:
+- Logged-in users are redirected to `/no-access`
+- Unauthenticated users are redirected to `/login`
 
 ---
 
@@ -458,85 +505,95 @@ app.use(
 Redirect all matching status codes to a fixed route:
 
 ```js
+const express = require('express');
+const { interceptByStatusCodeRedirectTo } = require('responseinterceptor');
+const app = express();
+
 app.use(
   interceptByStatusCodeRedirectTo([403, 404], '/error-page')
 );
 ```
 
-- Any `403` or `404` response automatically redirects to `/error-page`.
+Any `403` or `404` response automatically redirects to `/error-page`.
 
 ---
 
-#### 🧠 How It Works
+#### How It Works
 
-- The middleware **overrides** `res.end()` temporarily to intercept the response before it is finalized.
+- The middleware **overrides** `res.end()` temporarily to intercept the response before it is finalized
 - When the outgoing `statusCode` matches one of the provided values:
-    - The `callback` (or redirect path) is executed.
-    - The response is redirected using `res.redirect(newRoute)`.
-- A safety flag (`res.__interceptHandled`) prevents **recursive loops**, ensuring that redirects do not trigger interception again.
-- Non-matching responses continue normally using the original `res.end()`.
+    - The `callback` (or redirect path) is executed
+    - The response is redirected using `res.redirect(newRoute)`
+- A safety flag (`res.__interceptHandled`) prevents **recursive loops**, ensuring that redirects do not trigger interception again
+- Non-matching responses continue normally using the original `res.end()`
 
 ---
 
-#### 🧩 Notes
+#### Notes
 
-- Works transparently with any Express route or controller.
-- Compatible with async request handlers and standard middleware chaining.
-- Automatically cleans up internal flags after the response finishes.
-
----
-
-#### ✅ Example Use Cases
-
-- Redirect users to a login page when a `403 Forbidden` occurs.
-- Redirect to a friendly error page on `404 Not Found`.
-- Implement centralized handling for maintenance mode (`503 Service Unavailable`).
+- Works transparently with any Express route or controller
+- Compatible with async request handlers and standard middleware chaining
+- Automatically cleans up internal flags after the response finishes
 
 ---
 
-#### 🧱 Return Value
+#### Example Use Cases
+
+- Redirect users to a login page when a `403 Forbidden` occurs
+- Redirect to a friendly error page on `404 Not Found`
+- Implement centralized handling for maintenance mode (`503 Service Unavailable`)
+
+---
+
+#### Return Value
 
 Returns an Express middleware function `(req, res, next)`.
 
 
 
-## <a name="examples"></a>`Examples`
+## Examples
 
-### <a name="ex1"></a>`Intercept response and add information to response if Content-Type is "application/json"`
+### Intercept response and add information to response if Content-Type is "application/json"
 
-Intercept a group of routes and add at the the response the timestamp in a filed called "timestamp" if body Content-Type is "application/json"
+Intercept a group of routes and add a timestamp field to the response when the body Content-Type is `"application/json"`:
+
 ```javascript
-var express = require('express');
-var router = express.Router();
-var responseinterceptor = require('responseinterceptor');
+const express = require('express');
+const router = express.Router();
+const responseinterceptor = require('responseinterceptor');
     
-// ############ BEGIN of routes to not intercept ############
-    router.get("/", function(req,res,next){
-        res.status(200).send({"content":"myContent"});
-    });             
-    // ..... other routes .....
+// ############ Routes without interception ############
+router.get("/", function(req, res, next){
+    res.status(200).send({"content": "myContent"});
+});             
+// Additional routes without interception...
         
-// ############ BEGIN of routes to intercept ########################
-    router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){
-        var NewResponse=body;
-        if(bodyContentType==="application/json")  // if body is a Json
-                 NewResponse.timestamp=Date.now(); // add response date&time
-        callback(NewResponse); // callback function with the new content
-    }));    
-    router.get("/withTimestamp", function(req,res,n ext){
-        // responseinterceptor intercept this response 
-        res.status(200).send({"content":"myContent"});
-    });
-    // ..... other routes to intercept .....
+// ############ Routes with interception ############
+router.use(responseinterceptor.intercept(function(body, bodyContentType, request, callback){
+    let newResponse = body;
+    if(bodyContentType === "application/json")  // Check if response is JSON
+             newResponse.timestamp = Date.now(); // Add current timestamp
+    callback(newResponse); // Return modified response with timestamp
+}));    
+router.get("/withTimestamp", function(req, res, next){
+    // This response WILL be intercepted and timestamp will be added
+    res.status(200).send({"content": "myContent"});
+});
+// Additional routes to intercept...
 ```
 
-In app.js use the "/intercept" route
+In `app.js` use the `"/intercept"` route:
+
 ```javascript    
-var routeInt = require('../routes/routeInt');
+const express = require('express');
+const routeInt = require('./routes/routeInt');
+const app = express();
+
 app.use('/intercept', routeInt);   
 ```
 
-Call service with curl to print results
+Call the service with curl to see the results:
+
 ```shell
 $ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://hostname/intercept
 X-Powered-By: Express
@@ -546,7 +603,7 @@ ETag: "35-6BXjKyRXlm+rSEU9a23z/g"
 Date: Fri, 11 Nov 2016 13:16:44 GMT
 Connection: keep-alive
 
-{"content":"myContent"} // content with no timestamp field
+{"content":"myContent"} // Response without timestamp field
 $
 $ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://hostname/intercept/withTimestamp
 X-Powered-By: Express
@@ -556,57 +613,62 @@ ETag: "35-6BXjKyRXlm+rSEU9a23z/g"
 Date: Fri, 11 Nov 2016 13:16:44 GMT
 Connection: keep-alive
 
-{"content":"myContent","timestamp":"1478870174325"} // content with timestamp field
+{"content":"myContent","timestamp":"1478870174325"} // Response with timestamp field
 ```
 
 
-### <a name="ex2"></a>`Intercept response and add information to response if Content-Type is "text/html"`
+### Intercept response and add information to response if Content-Type is "text/html"
 
+Intercept a group of routes and replace all HTML `<ul>` tags with `<ol>` tags:
 
-Intercept a group of routes and replace all html tag `<ul>` to `<ol>` 
 ```javascript
-var express = require('express');
-var router = express.Router();
-var responseinterceptor = require('responseinterceptor');
-var htmlContent=`<html>
-                    <head> </head>
-                    <body contenteditable="false">                    
-                        <h2>An ordered HTML list</h2>                    
-                        <ul>
-                            <li>Coffee</li>
-                            <li>Tea</li>
-                            <li>Milk</li>
-                        </ul>
-                    </body>
-                </html>`;
+const express = require('express');
+const router = express.Router();
+const responseinterceptor = require('responseinterceptor');
+const htmlContent = '<html>\
+                    <head> </head>\
+                    <body contenteditable="false">\
+                        <h2>An unordered HTML list</h2>\
+                        <ul>\
+                            <li>Coffee</li>\
+                            <li>Tea</li>\
+                            <li>Milk</li>\
+                        </ul>\
+                    </body>\
+                </html>';
     
-// ############ BEGIN of routes to not intercept ############
-    router.get("/", function(req,res,next){
-        res.status(200).send(htmlContent);
-    });            
-    // ..... other routes .....
+// ############ Routes without interception ############
+router.get("/", function(req, res, next){
+    res.status(200).send(htmlContent);
+});            
+// Additional routes without interception...
         
-// ############ BEGIN of routes to intercept ############    
-    router.use(responseinterceptor.intercept(function(body, bodyContentType ,request, callback){          
-        var NewResponse=body;
-        if(bodyContentType==="text/html")  // if body is a html
-                 body.replace("<ul>","<ol>");
-        callback(NewResponse); // callback function with the new html content
-    }));
-    router.get("/withOLTag", function(req,res,n ext){
-        // responseinterceptor intercept this response 
-        res.status(200).send(htmlContent);
-    });
-    // ..... other routes to intercept .....
+// ############ Routes with interception ############    
+router.use(responseinterceptor.intercept(function(body, bodyContentType, request, callback){          
+    let newResponse = body;
+    if(bodyContentType === "text/html")  // Check if response is HTML
+             newResponse = body.replace("<ul>", "<ol>").replace("</ul>", "</ol>"); // Replace ul tags with ol tags
+    callback(newResponse); // Return modified HTML
+}));
+router.get("/withOLTag", function(req, res, next){
+    // This response WILL be intercepted and <ul> tags will be replaced with <ol>
+    res.status(200).send(htmlContent);
+});
+// Additional routes to intercept...
 ```
 
-In app.js use the "/intercept" route
+In `app.js` use the `"/intercept"` route:
+
 ```javascript    
-var routeInt = require('../routes/routeInt');
+const express = require('express');
+const routeInt = require('./routes/routeInt');
+const app = express();
+
 app.use('/intercept', routeInt);
 ```
 
-Call service with curl to print results
+Call the service with curl to see the results:
+
 ```shell
 $ curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://hostname/intercept
 X-Powered-By: Express
@@ -616,11 +678,11 @@ ETag: "35-6BXjKyRXlm+rSEU9a23z/g"
 Date: Fri, 11 Nov 2016 13:16:44 GMT
 Connection: keep-alive
 
-// content with original <ul> tag
+// Response with original <ul> tag
 <html>
     <head> </head>
         <body contenteditable="false">                    
-            <h2>An ordered HTML list</h2>                    
+            <h2>An unordered HTML list</h2>                    
                 <ul>
                     <li>Coffee</li>
                     <li>Tea</li>
@@ -637,11 +699,11 @@ ETag: "35-6BXjKyRXlm+rSEU9a23z/g"
 Date: Fri, 11 Nov 2016 13:16:44 GMT
 Connection: keep-alive
 
-// content with modified <ol> tag
+// Response with modified <ol> tag
 <html>
     <head> </head>
         <body contenteditable="false">                    
-            <h2>An ordered HTML list</h2>                    
+            <h2>An unordered HTML list</h2>                    
                 <ol>
                     <li>Coffee</li>
                     <li>Tea</li>
@@ -651,10 +713,52 @@ Connection: keep-alive
 </html>
 ```
 
-License - "MIT License"
------------------------
+## TypeScript Support
 
-MIT License
+The package includes TypeScript definitions. Here's an example of using responseinterceptor with TypeScript:
+
+```typescript
+import express, { Request, Response, NextFunction } from 'express';
+import * as responseinterceptor from 'responseinterceptor';
+
+const app = express();
+
+// Type-safe interceptor
+app.use(responseinterceptor.intercept((
+    body: any,
+    bodyContentType: string,
+    request: Request,
+    callback: (newContent: any) => void
+) => {
+    let newResponse = body;
+    
+    if (bodyContentType === "application/json") {
+        newResponse.timestamp = Date.now();
+        newResponse.server = "MyAPI";
+    }
+    
+    callback(newResponse);
+}));
+
+// Status code interception with TypeScript
+app.use(responseinterceptor.interceptByStatusCode(
+    [403, 404],
+    (req: Request, respond: (status: number, content: any) => void) => {
+        respond(200, {
+            error: true,
+            message: "Resource not found or access denied"
+        });
+    }
+));
+
+app.listen(3000, () => {
+    console.log('Server running on port 3000');
+});
+```
+
+## License
+
+**MIT License**
 
 Copyright (c) 2016 aromanino
 
@@ -676,12 +780,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+---
 
-Author
-------
+## Authors
+
+**Author:**  
 CRS4 Microservice Core Team ([cmc.smartenv@crs4.it](mailto:cmc.smartenv@crs4.it))
 
-Contributors
-------
-Alessandro Romanino ([a.romanino@gmail.com](mailto:a.romanino@gmail.com))<br>
-Guido Porruvecchio ([guido.porruvecchio@gmail.com](mailto:guido.porruvecchio@gmail.com))
+**Contributors:**  
+- Alessandro Romanino ([a.romanino@gmail.com](mailto:a.romanino@gmail.com))
+- Guido Porruvecchio ([guido.porruvecchio@gmail.com](mailto:guido.porruvecchio@gmail.com))
