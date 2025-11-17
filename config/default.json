@@ -1,0 +1,32 @@
+{
+  "production": {
+    "responseinterceptor": {
+      "logging": {
+        "enabled": false
+      },
+      "errorHandling": {
+        "rethrow": false
+      }
+    }
+  },
+  "test": {
+    "responseinterceptor": {
+      "logging": {
+        "enabled": false
+      },
+      "errorHandling": {
+        "rethrow": true
+      }
+    }
+  },
+  "dev": {
+    "responseinterceptor": {
+      "logging": {
+        "enabled": true
+      },
+      "errorHandling": {
+        "rethrow": false
+      }
+    }
+  }
+}

@@ -1,19 +1,25 @@
 {
   "name": "responseinterceptor",
-  "version": "2.0.6",
+  "version": "3.0.0",
   "dependencies": {
     "async": "^2.1.2",
     "debug": "^4.4.3",
     "etag": "^1.7.0",
     "express": "^5.1.0",
     "morgan": "^1.9.1",
+    "propertiesmanager": "^3.0.4",
     "serve-favicon": "^2.5.1",
     "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3"
   },
   "description": "This package allows intercept an express response ( res.send , res.end , res.write ) and update or upgrade response with your other logic",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "mocha test/**/*.test.js --timeout 5000"
   },
   "keywords": [
     "response",
@@ -24,7 +30,18 @@
     "res.render",
     "intercept",
     "override",
-    "override response"
+    "override response",
+    "middleware",
+    "error handling",
+    "status code",
+    "custom logger",
+    "async",
+    "content-type",
+    "buffer",
+    "monitoring",
+    "configuration",
+    "propertiesmanager",
+    "environment"
   ],
   "author": "Alessandro Romanino <a.romanino@gmail.com>",
   "license": "MIT",

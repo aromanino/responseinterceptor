@@ -1,0 +1,35 @@
+# ResponseInterceptor Configuration (JSON format)
+# ================================================
+# 
+# PropertiesManager reads config/default.json automatically
+# The structure uses environments: production, test, dev
+#
+# Example structure:
+# {
+#   "production": {
+#     "responseinterceptor": {
+#       "logging": { "enabled": false },
+#       "errorHandling": { "rethrow": false }
+#     }
+#   },
+#   "test": {
+#     "responseinterceptor": {
+#       "logging": { "enabled": false },
+#       "errorHandling": { "rethrow": true }
+#     }
+#   },
+#   "dev": {
+#     "responseinterceptor": {
+#       "logging": { "enabled": true },
+#       "errorHandling": { "rethrow": false }
+#     }
+#   }
+# }
+#
+# PropertiesManager automatically selects the right environment based on NODE_ENV
+# Access via: propertiesmanager.responseinterceptor.logging.enabled
+#
+# To use a different environment:
+# NODE_ENV=production node app.js
+# NODE_ENV=test node app.js
+# NODE_ENV=dev node app.js (default)
